@@ -1,0 +1,25 @@
+# ===========================================================================
+# Humanix Corp — Sauvegarde configuration LDAP
+# Fichier généré automatiquement par le script de migration v2.3
+# Migration effectuée le 12/03/2026 — Service IT (Pierre Bernard)
+#
+# TODO Pierre : ne pas oublier de supprimer ce fichier de la racine web
+# avant la fin du sprint. Tu m'avais dit deux jours. -- J. Martin
+# ===========================================================================
+
+[ldap]
+server   = dc01.humanix.lab
+base_dn  = DC=humanix,DC=lab
+
+# Compte de bind utilisé pour la migration (compte de service comptabilité,
+# accès lecture seule à l'annuaire). À retirer après recette.
+bind_user = j.martin@humanix.lab
+bind_pass = Printemps2025!
+
+[shares]
+backup    = \\dc01.humanix.lab\backup        # archives RH (Veeam, accès restreint)
+sqldata   = \\dc01.humanix.lab\sqldata       # base RechercheCliniqueLazarus
+adminshare = \\dc01.humanix.lab\adminshare   # documents direction
+
+# __FLAG_WEB__
+# -- Fin du fichier de configuration --

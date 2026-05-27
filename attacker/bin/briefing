@@ -1,0 +1,36 @@
+#!/bin/bash
+# briefing — rappelle la mission
+
+cat <<'EOF'
+
+  ▲ BRIEFING — Project Lazarus
+
+  ────────────────────────────────────────────────────────────────────────
+  Message chiffré de Mara Aldritch (Lighthouse Foundation), 02h47 :
+
+  > Humanix Corp — biotech, implants neuronaux, vitrine éthique parfaite.
+  > Ma source à l'intérieur a parlé pendant 3 semaines avant de disparaître
+  > il y a 36h. Elle évoquait Project Lazarus : essais cliniques humains
+  > non déclarés. Sept noms étaient sortis. Sept volontaires.
+  >
+  > Ses dernières indications :
+  >   - "la sauvegarde de la dernière migration LDAP traîne encore en clair"
+  >   - "j'ai laissé quelque chose dans le profil d'un collègue de compta"
+  >
+  > Tu as 72 heures avant que leur cellule de crise ne nettoie tout.
+  >
+  > Objectif :
+  >   1. Pénétrer leur SI à partir de l'intranet exposé
+  >   2. Remonter la chaîne jusqu'aux Domain Admins
+  >   3. Exfiltrer le rapport interne du Project Lazarus
+  >   4. Disparaître. Aucune trace.
+  >
+  > Périmètre autorisé : intranet + dc01.humanix.lab. Rien d'autre.
+  >
+  > — M.
+
+  ────────────────────────────────────────────────────────────────────────
+  Pour voir les outils :   arsenal
+  Pour voir les cibles :   targets
+
+EOF

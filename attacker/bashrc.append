@@ -1,0 +1,14 @@
+# =============================================================================
+# Humanix CTF — bashrc additions (appendées sur /root/.bashrc et /etc/bash.bashrc)
+# =============================================================================
+
+# Affiche le MOTD à chaque shell interactif (mais pas dans les scripts)
+if [ -t 1 ] && [ -z "$HUMANIX_MOTD_SHOWN" ]; then
+    export HUMANIX_MOTD_SHOWN=1
+    /usr/local/bin/motd
+fi
+
+# Confort
+alias ll='ls -la --color=auto'
+alias ..='cd ..'
+PS1='\[\033[1;32m\]lazarus\[\033[0m\]@\h:\w\$ '

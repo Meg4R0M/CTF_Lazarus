@@ -1,0 +1,36 @@
+# =============================================================================
+# Humanix CTF — gitignore (configuration : repo PUBLIC)
+# =============================================================================
+# Tout ce qui révèle la solution, les flags, le walkthrough ou les secrets
+# d'instance doit rester HORS du repo.
+# =============================================================================
+
+# --- Runtime / état d'instance ---
+dc_data/
+*.ldb
+*.tdb
+*.log
+
+# --- Secret formateur (dérive les flags) ---
+# Si quelqu'un récupère .env, il peut prédire tous les flags du lab.
+.env
+
+# --- Fichiers de flags générés au runtime ---
+scripts/flags/*.txt
+
+# --- Distribution étudiant (artefact de build) ---
+dist/
+
+# --- CORRIGÉS / WALKTHROUGH (jamais en public) ---
+# Ces fichiers contiennent la solution complète, les mots de passe, et les
+# valeurs de flags. À échanger hors-git entre formateurs (Drive privé, etc.)
+INSTRUCTOR.md
+INSTRUCTOR_NOTES.md
+docs/WRITEUP*.pdf
+docs/WRITEUP*.docx
+docs/build_writeup.py
+
+# --- Divers ---
+.DS_Store
+*.swp
+*.bak

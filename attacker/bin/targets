@@ -1,0 +1,28 @@
+#!/bin/bash
+# targets — affiche les cibles du périmètre autorisé
+
+cat <<'EOF'
+
+  ▲ PERIMETRE AUTORISE — Humanix Corp
+
+  ────────────────────────────────────────────────────────────────────────
+  INTRANET (point d'entrée externe)
+    URL          http://172.31.0.20/
+    Hostname     intranet (humanix-web)
+    Service      Apache + PHP
+
+  DOMAIN CONTROLLER (réseau interne)
+    Host         dc01.humanix.lab
+    IP           172.30.0.10
+    Domaine      HUMANIX.LAB  (NetBIOS: HUMANIX)
+    Services     SMB (445), LDAP (389/636), Kerberos (88), DNS (53), GC (3268)
+
+  TON POSTE
+    Hostname     kali-student
+    Externe      172.31.0.30   (peut joindre l'intranet)
+    Interne      172.30.0.30   (peut joindre le DC)
+
+  ────────────────────────────────────────────────────────────────────────
+  HORS PERIMETRE = HORS JEU. Tout ce qui n'est pas listé ci-dessus.
+
+EOF

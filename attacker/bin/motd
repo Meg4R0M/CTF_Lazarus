@@ -1,0 +1,19 @@
+#!/bin/bash
+# motd — affiché à chaque ouverture de shell
+
+cat <<'EOF'
+
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │                                                                      │
+  │   ▲  HUMANIX — Project Lazarus                                      │
+  │      Poste de pentest élève · kali-rolling                          │
+  │                                                                      │
+  │   Connexion entrante de Mara Aldritch — voir : briefing             │
+  │                                                                      │
+  └──────────────────────────────────────────────────────────────────────┘
+
+    arsenal     liste les outils à ta disposition
+    targets     liste les cibles du périmètre
+    briefing    réaffiche le briefing de mission
+
+EOF

@@ -1,0 +1,84 @@
+services:
+
+  # ===========================================================================
+  # DOMAIN CONTROLLER — Samba4 AD DS (HUMANIX.LAB)
+  # Sur le réseau INTERNE uniquement : pas d'accès Internet, isolation totale.
+  # ===========================================================================
+  dc01:
+    build:
+      context: .
+      dockerfile: dc/Dockerfile
+    container_name: humanix-dc01
+    hostname: dc01
+    privileged: true                 # requis par Samba pour certains caps (xattr, etc.)
+    environment:
+      # Secret formateur — sert à dériver toutes les valeurs de flags.
+      # Vient du fichier .env à la racine du repo (cf. .env.example).
+      CTF_SECRET: ${CTF_SECRET:?CTF_SECRET non défini. Copie .env.example en .env.}
+    networks:
+      lab_internal:
+        ipv4_address: 172.30.0.10
+        aliases:
+          - dc01.humanix.lab
+          - humanix.lab
+    volumes:
+      - dc_data:/var/lib/samba
+    dns:
+      - 127.0.0.1                    # le DC se résout lui-même (DNS interne Samba)
+    restart: unless-stopped
+
+  # ===========================================================================
+  # INTRANET WEB — point d'entrée externe (fuite de creds)
+  # Pont entre le réseau EXTERNE (joignable par l'attaquant) et l'interne.
+  # ===========================================================================
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: humanix-web
+    hostname: intranet
+    environment:
+      CTF_SECRET: ${CTF_SECRET:?CTF_SECRET non défini. Copie .env.example en .env.}
+    networks:
+      lab_external:
+        ipv4_address: 172.31.0.20
+    restart: unless-stopped
+
+  # ===========================================================================
+  # ATTAQUANT — poste de l'élève, pré-équipé
+  # Connecté AUX DEUX réseaux : il "voit" le web (externe) et, une fois
+  # le pivot réalisé, le DC (interne). Pédagogiquement : simule le pivot.
+  # ===========================================================================
+  attacker:
+    build: ./attacker
+    container_name: humanix-attacker
+    hostname: kali-student
+    networks:
+      lab_external:
+        ipv4_address: 172.31.0.30
+      lab_internal:
+        ipv4_address: 172.30.0.30
+    dns:
+      - 172.30.0.10                  # résolution via le DC (indispensable pour Kerberos)
+    cap_add:
+      - NET_RAW                      # pour nmap / scans
+    restart: unless-stopped
+
+networks:
+  # Réseau INTERNE : --internal => AUCUN accès sortant Internet. Isolation lab.
+  lab_internal:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+  # Réseau EXTERNE : simule "l'extérieur" depuis lequel on attaque l'intranet.
+  lab_external:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+
+volumes:
+  dc_data:

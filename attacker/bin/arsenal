@@ -1,0 +1,43 @@
+#!/bin/bash
+# arsenal — liste les outils disponibles sur le poste
+
+cat <<'EOF'
+
+  ▲ ARSENAL DISPONIBLE — Poste de pentest Humanix
+
+  ────────────────────────────────────────────────────────────────────────
+  RECON & ENUMERATION
+    nmap                    Scan de ports
+    nxc smb|ldap|winrm ...  NetExec (ex-CrackMapExec) — couteau suisse AD
+    ldapsearch              Requêtes LDAP brutes
+    smbclient               Client SMB interactif / listing de shares
+    dig                     Requêtes DNS
+
+  KERBEROS / AD ATTACK
+    impacket-GetNPUsers     AS-REP roasting
+    impacket-GetUserSPNs    Kerberoasting
+    impacket-secretsdump    Dump NTDS.dit / hashes
+    impacket-psexec         Exécution distante via SMB
+    impacket-wmiexec        Exécution distante via WMI
+    kinit / klist           Auth Kerberos directe + listing tickets
+
+  CRACK
+    john                    Cassage offline (AS-REP, TGS, NTLM...)
+                            Wordlist d'amorçage : /opt/wordlist.txt
+
+  BLOODHOUND
+    bloodhound-python       Collecteur depuis Linux
+                            (l'analyse graphique se fait dans ton BloodHound local
+                             — récupère le .zip généré et importe-le)
+
+  UTILS
+    curl, wget              HTTP client
+    git, vim, less          Confort shell
+    ip a, ping, ncat        Network basics
+
+  ────────────────────────────────────────────────────────────────────────
+  Tape :  briefing   pour relire la mission
+          targets    pour voir les cibles et leurs IP
+          arsenal    pour réafficher cet écran
+
+EOF
