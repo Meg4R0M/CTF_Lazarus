@@ -105,7 +105,7 @@ flags-show: .env
 	@for entry in \
 		"web_recon:l34k_conf1rm3d:FLAG 1 (fuite confirmée — web recon)" \
 		"ldap_info:wh1stl3bl0w3r_id:Bonus (identité du whistleblower)" \
-		"asrep:4rch1v3s_unc0v3r3d:FLAG 2 (archives RH — AS-REP roast)" \
+		"backup_spn:4rch1v3s_unc0v3r3d:FLAG 2 (archives RH — Kerberoast HTTP)" \
 		"kerberoast:l4z4rus_db_dump:FLAG 3 (base Lazarus — Kerberoast)" \
 		"acl_abuse:r5s1_pwn3d:FLAG 4 (RSSI compromise — ACL abuse)" \
 		"domain_admin:pr0j3ct_l4z4rus_3xf1l:FLAG FINAL (rapport exfiltré — DA)"; do \

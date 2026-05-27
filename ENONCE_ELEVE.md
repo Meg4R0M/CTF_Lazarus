@@ -69,8 +69,8 @@ Le rapport final compte autant que les flags eux-mêmes.
 | # | Trophée | Indice (en clair) |
 |---|---|---|
 | 1 | `FLAG{l34k_conf1rm3d_...}` | La source a parlé d'une "sauvegarde de migration LDAP en clair". |
-| 2 | `FLAG{4rch1v3s_unc0v3r3d_...}` | Un compte de service oublié donne accès aux archives RH. |
-| 3 | `FLAG{l4z4rus_db_dump_...}` | La base clinique se cache derrière un service applicatif. |
+| 2 | `FLAG{4rch1v3s_unc0v3r3d_...}` | Un service web interne expose son SPN. Son mot de passe traîne depuis 2018. |
+| 3 | `FLAG{l4z4rus_db_dump_...}` | Un deuxième service applicatif vulnérable au même type d'attaque, mais différent SPN. |
 | 4 | `FLAG{r5s1_pwn3d_...}` | Une relation d'autorité mal pensée mène à la RSSI. |
 | 5 | `FLAG{pr0j3ct_l4z4rus_3xf1l_...}` | Le rapport. Ce pour quoi tu es là. |
 | bonus | `FLAG{wh1stl3bl0w3r_id_...}` | *« La source a laissé une note dans le profil d'un collègue de compta. »* |

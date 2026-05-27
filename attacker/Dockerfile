@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         # --- AD / Kerberos / SMB / LDAP ---
         krb5-user \
         smbclient \
+        samba-common-bin \
         ldap-utils \
         dnsutils \
         # --- Network ---
@@ -57,13 +58,15 @@ RUN printf '[libdefaults]\n\
 # Wordlist d'amorçage (les mdp faibles du lab sont dedans + bruit)
 COPY wordlist.txt /opt/wordlist.txt
 
-# Helpers in-shell : motd, arsenal, briefing, targets
-COPY bin/motd     /usr/local/bin/motd
-COPY bin/arsenal  /usr/local/bin/arsenal
-COPY bin/briefing /usr/local/bin/briefing
-COPY bin/targets  /usr/local/bin/targets
+# Helpers in-shell : motd, arsenal, briefing, targets, kerberoast
+COPY bin/motd       /usr/local/bin/motd
+COPY bin/arsenal    /usr/local/bin/arsenal
+COPY bin/briefing   /usr/local/bin/briefing
+COPY bin/targets    /usr/local/bin/targets
+COPY bin/kerberoast /usr/local/bin/kerberoast
 RUN chmod +x /usr/local/bin/motd /usr/local/bin/arsenal \
-             /usr/local/bin/briefing /usr/local/bin/targets
+             /usr/local/bin/briefing /usr/local/bin/targets \
+             /usr/local/bin/kerberoast
 
 # MOTD + alias confort à chaque ouverture de shell interactif
 COPY bashrc.append /tmp/bashrc.append

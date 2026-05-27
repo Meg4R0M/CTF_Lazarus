@@ -91,12 +91,16 @@ if [ ! -f "$PROVISION_MARKER" ]; then
     echo "[*] Génération des fichiers de flags (depuis CTF_SECRET)..."
     mkdir -p /srv/ctf/asrep /srv/ctf/kerberoast /srv/ctf/acl /srv/ctf/final
 
-    cat > /srv/ctf/asrep/FLAG2_asrep.txt <<EOF
+    cat > /srv/ctf/asrep/FLAG2_backup_spn.txt <<EOF
 === ARCHIVES RH — HUMANIX CORP ===
-Tu accèdes au share \\\\dc01\\backup. Ce sont les sauvegardes du service RH,
-hébergées sur ce compte Veeam oublié depuis la migration 2008.
+Tu as repéré le SPN HTTP/backup.humanix.lab sur le compte svc-backup,
+récupéré son TGS, et cracké son mot de passe ("backup123" — posé en 2018,
+jamais audité).
 
-$(flag_for "asrep" "4rch1v3s_unc0v3r3d")
+Tu accèdes maintenant au share \\\\dc01\\backup, où Humanix archive les
+sauvegardes du service RH.
+
+$(flag_for "backup_spn" "4rch1v3s_unc0v3r3d")
 
 Premières trouvailles : sept dossiers "PARTICIPANT-LZ-XX" classés CONFIDENTIEL.
 Les noms sont anonymisés. Sept lignes — sept volontaires du Project Lazarus.

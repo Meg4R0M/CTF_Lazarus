@@ -14,12 +14,15 @@ cat <<'EOF'
     dig                     Requêtes DNS
 
   KERBEROS / AD ATTACK
-    impacket-GetNPUsers     AS-REP roasting
-    impacket-GetUserSPNs    Kerberoasting
+    impacket-GetUserSPNs    Lister les SPN d'un domaine (le -request bug
+                            sur Samba — utilise kerberoast à la place)
+    kerberoast              Helper local : extrait un TGS crackable depuis
+                            le ccache (workflow : kinit -> kvno SPN -> kerberoast SPN)
     impacket-secretsdump    Dump NTDS.dit / hashes
     impacket-psexec         Exécution distante via SMB
     impacket-wmiexec        Exécution distante via WMI
-    kinit / klist           Auth Kerberos directe + listing tickets
+    net rpc password ...    Reset de mot de passe via SAMR (ACL abuse)
+    kinit / klist / kvno    Auth Kerberos + listing + demande de TGS
 
   CRACK
     john                    Cassage offline (AS-REP, TGS, NTLM...)

@@ -3,11 +3,11 @@
 > **CTF Active Directory** thématique sur fond de biotech & lanceurs d'alerte.
 > **Portable, reproductible, Docker-only.** Aucun Windows requis. Conçu pour public **Master 2 / pro**.
 >
-> Chaîne d'attaque : **recon web externe → AS-REP roasting → Kerberoasting → BloodHound → ACL abuse → Domain Admin**.
+> Chaîne d'attaque : **recon web externe → Kerberoast HTTP service → Kerberoast MSSQL → BloodHound → ACL abuse → Domain Admin**.
 > Socle technique : **Samba4 en mode AD DC** conteneurisé.
 
 ```
-recon web → AS-REP → Kerberoast → BloodHound → ACL abuse → Domain Admin
+recon web → Kerberoast (HTTP) → Kerberoast (MSSQL) → BloodHound → ACL abuse → Domain Admin
 ```
 
 ---

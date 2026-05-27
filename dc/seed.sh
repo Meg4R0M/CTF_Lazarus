@@ -46,9 +46,10 @@ create_user () {
 # backup web "oublié" depuis la migration LDAP de mars 2026.
 create_user "j.martin"     "Printemps2025!"        "Julien Martin - Comptabilite - acces intranet RH"
 
-# Veeam-BackupSvc — compte de service hérité d'une politique 2008. Un admin
-# pressé a désactivé la pré-auth Kerberos pour faire passer un vieux job.
-create_user "svc-backup"   "backup123"             "Veeam-BackupSvc - sauvegardes archives RH (heritage 2008, DO NOT TOUCH)"
+# Veeam-BackupSvc — compte de service qui fait tourner le portail web de
+# backup interne (backup.humanix.lab). SPN HTTP visible + mot de passe faible
+# posé en 2018 et jamais audité → cible Kerberoast classique.
+create_user "svc-backup"   "backup123"             "Veeam-BackupSvc - portail web sauvegardes (backup.humanix.lab, DO NOT TOUCH)"
 
 # MSSQL-Lazarus — instance qui héberge la base RechercheCliniqueLazarus.
 # SPN visible, mot de passe posé en 2023 et jamais changé.
@@ -64,24 +65,19 @@ create_user "p.bernard"    "ChangeMe123!"          "Pierre Bernard - Support IT"
 create_user "c.leroy"      "Azerty2025!"           "Camille Leroy - Commercial"
 
 # ---------------------------------------------------------------------------
-# ETAPE 2 : AS-REP roasting — désactivation de la pré-authentification Kerberos
+# ETAPE 2 : Kerberoasting du service backup (SPN HTTP)
 # ---------------------------------------------------------------------------
-echo "[*] Configuration AS-REP roasting sur svc-backup..."
-samba-tool user setpassword svc-backup --newpassword="backup123" >/dev/null 2>&1 || true
-# UF_DONT_REQUIRE_PREAUTH = 0x400000 (4194304). On force le userAccountControl.
-# Valeur de base d'un compte normal activé = 512 (NORMAL_ACCOUNT).
-# 512 + 4194304 = 4194816
-LDIF_PREAUTH=$(mktemp)
-cat > "$LDIF_PREAUTH" <<EOF
-dn: $(samba-tool user show svc-backup | grep -i '^dn:' | cut -d' ' -f2-)
-changetype: modify
-replace: userAccountControl
-userAccountControl: 4194816
-EOF
-ldbmodify -H /var/lib/samba/private/sam.ldb "$LDIF_PREAUTH" >/dev/null 2>&1 \
-    && echo "    [+] DONT_REQUIRE_PREAUTH posé sur svc-backup" \
-    || echo "    [!] Echec pose preauth (à vérifier manuellement)"
-rm -f "$LDIF_PREAUTH"
+# Note historique : cette étape utilisait initialement AS-REP roasting via
+# UF_DONT_REQUIRE_PREAUTH. Le KDC Samba en mode AD DC refusait obstinément
+# d'honorer ce flag (testé sur 4.15 / 4.17 / 4.19 → tous échouent). On a
+# pivoté sur un second Kerberoast avec un SPN HTTP différent, qui est :
+#   - 100% fonctionnel sur Samba
+#   - Pédagogiquement proche (cracking d'un hash Kerberos faible)
+#   - Diversifié (autre type de SPN : HTTP au lieu de MSSQLSvc à l'étape 3)
+echo "[*] Configuration Kerberoasting sur svc-backup (SPN HTTP)..."
+samba-tool spn add "HTTP/backup.humanix.lab" svc-backup >/dev/null 2>&1 \
+    && echo "    [+] SPN HTTP/backup.humanix.lab ajouté à svc-backup" \
+    || echo "    [!] SPN déjà présent ou échec"
 
 # ---------------------------------------------------------------------------
 # ETAPE 3 : Kerberoasting — ajout d'un SPN sur svc-sql
