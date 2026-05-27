@@ -127,9 +127,17 @@ echo "[*] Pose des flags..."
 # Martin — l'identifiant interne du whistleblower. Récompense l'énumération
 # LDAP fine (info n'est pas dans les attributs affichés par défaut).
 LDAP_FLAG=$(flag_for "ldap_info" "wh1stl3bl0w3r_id")
-samba-tool user setattribute j.martin info \
-    "[note interne] La source a laisse ce message : ${LDAP_FLAG} - efface ca apres lecture." \
-    >/dev/null 2>&1 || true
+LDIF_INFO=$(mktemp)
+cat > "$LDIF_INFO" <<EOF
+dn: CN=j.martin,CN=Users,DC=humanix,DC=lab
+changetype: modify
+add: info
+info: [note interne] La source a laisse ce message : ${LDAP_FLAG} - efface ca apres lecture.
+EOF
+ldbmodify -H /var/lib/samba/private/sam.ldb "$LDIF_INFO" >/dev/null 2>&1 \
+    && echo "    [+] Attribut 'info' (FLAG bonus) posé sur j.martin" \
+    || echo "    [!] Echec pose attribut info"
+rm -f "$LDIF_INFO"
 
 # Les autres flags (AS-REP, Kerberoast, ACL, FINAL) sont générés et écrits
 # par provision.sh dans /srv/ctf/*/FLAG*.txt, exposés via les shares SMB.
