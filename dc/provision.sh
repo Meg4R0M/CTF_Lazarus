@@ -162,7 +162,13 @@ Tu disparais. Mara publiera dans 72h.
 
 ------------------------------------------------------------------------
 KILL CHAIN UTILISEE :
-  fuite web -> AS-REP roast -> Kerberoast -> ACL abuse -> Domain Admin
+  fuite web -> Kerberoast HTTP -> Kerberoast MSSQL -> ACL abuse -> DA
+
+À propos de DCSync (impacket-secretsdump) :
+  Si tu as essayé un secretsdump complet et que ça a échoué — c'est
+  normal. Le DRSUAPI de Samba4 n'est pas 100% compatible avec impacket
+  (ERROR_SUCCESS ou parse error byte indices). C'est une limite connue
+  des labs Samba — irrelevante pour cette chaîne, le rapport est ici.
 
 Le vrai livrable maintenant : ton rapport de pentest.
 Décris la chaîne, les contre-mesures, et — point bonus — la question
