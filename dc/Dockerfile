@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM ubuntu:22.04
 
 # =============================================================================
 # Humanix CTF — Domain Controller (Samba4 AD DS)
@@ -9,6 +9,15 @@ FROM debian:12-slim
 # GPO Windows natives. Mais Kerberoasting, AS-REP roasting, enum LDAP,
 # BloodHound et le mouvement latéral SMB fonctionnent de façon réaliste.
 #
+# BASE : ubuntu:22.04 (Samba 4.15) — sweet spot LTS connu :
+#   - Samba 4.13 et avant : trop ancien, manque d'outils modernes
+#   - Samba 4.15 (Ubuntu 22.04 LTS) : AS-REP roast + Kerberoast OK, support LTS
+#     jusqu'en 2027
+#   - Samba 4.17 (Debian 12)        : Kerberoast OK, AS-REP roast CASSE
+#                                     (DONT_REQ_PREAUTH ignoré par le KDC)
+#   - Samba 4.19 (Ubuntu 24.04)     : les deux CASSES (FAST armoring + checksum
+#                                     hardening). Pas exploitable en lab CTF.
+#
 # Build context : racine du repo (compose le passe via context: .)
 # =============================================================================
 
@@ -16,7 +25,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         samba \
-        samba-ad-provision \
         samba-dsdb-modules \
         samba-vfs-modules \
         python3-samba \
